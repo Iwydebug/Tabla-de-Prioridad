@@ -289,22 +289,7 @@
         <div class="info-box">
             <p><strong>⚡ Cómo funciona:</strong> Quien ha trabajado <strong>MENOS días</strong> aparece <strong>ARRIBA (máxima prioridad)</strong>. Asigna primero a los de arriba para que todos ganen similar.</p>
         </div>
-
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-circle verde">●</div>
-                <span><strong>Máxima Prioridad</strong> - Pocas X (1-2 días)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-circle amarillo">●</div>
-                <span><strong>Prioridad Media</strong> - Medio (3-4 días)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-circle rojo">●</div>
-                <span><strong>Baja Prioridad</strong> - Muchas X (5+ días)</span>
-            </div>
-        </div>
-
+        
         <div class="ranking-container" id="rankingContainer"></div>
     </div>
 
@@ -329,6 +314,31 @@ function showRanking(data) {
     if (!fila[0] || isNaN(fila[1])) break;
     totales.push([fila[0], Number(fila[1]||0)]);
   }
+  if (!totales.length) {
+    document.getElementById('rankingContainer').innerHTML = 'No se encontraron datos en TOTAL GENERAL.';
+    return;
+  }
+  totales.sort((a,b)=>a[1]-b[1]);
+  let html = '';
+  // Asigna prioridad relativa por posición
+  totales.forEach((r, i) => {
+    let prioText = '';
+    let prioClase = '';
+    if (i < 3) { prioText = 'MÁXIMA PRIORIDAD'; prioClase = 'maxima'; }
+    else if (i < 6) { prioText = 'PRIORIDAD MEDIA'; prioClase = 'media'; }
+    else { prioText = 'BAJA PRIORIDAD'; prioClase = 'baja'; }
+    html += `<div class="ranking-item ${prioClase}">
+      <div class="rank-number">${i+1}</div>
+      <div class="ranking-info">
+        <div class="ranking-name">${r[0]}</div>
+        <div class="ranking-days">${r[1]} día${r[1]==1?'':'s'} trabajados</div>
+      </div>
+      <div class="ranking-priority">${prioText}</div>
+    </div>`;
+  });
+  document.getElementById('rankingContainer').innerHTML = html;
+}
+
   if (!totales.length) {
     document.getElementById('rankingContainer').innerHTML = 'No se encontraron datos en TOTAL GENERAL.';
     return;
