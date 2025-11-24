@@ -70,10 +70,19 @@
       return ['BAJA PRIORIDAD', 'baja'];
     }
     function showRanking(data) {
-      // Busca la fila donde empiece "TOTAL GENERAL"
-      let totalRow = data.findIndex(row => row[0].trim().toUpperCase() === 'TOTAL GENERAL');
-      // Busca la base de datos justo debajo, columna Nombre y TOTAL DIAS
-      let startRow = (totalRow >= 0) ? totalRow + 1 : data.findIndex(row => row[0].trim() === 'Nombre' && row[1].trim().toLowerCase().includes('total'));
+      // Busca la fila donde aparezca "TOTAL GENERAL" en cualquier columna
+      let totalRow = data.findIndex(row => row.some(cell => cell.trim().toUpperCase() === 'TOTAL GENERAL'));
+      // Busca la siguiente fila que contenga "Nombre" y "Total" en las dos primeras columnas
+      let startRow = -1;
+      for (let i = totalRow + 1; i < data.length; i++) {
+        if (
+          data[i][0] && data[i][0].trim().toLowerCase().includes('nombre') &&
+          data[i][1] && data[i][1].trim().toLowerCase().includes('total')
+        ) {
+          startRow = i;
+          break;
+        }
+      }
       if (startRow < 0) { document.getElementById('rankingContainer').innerHTML = 'No se encontró la tabla de totales.'; return; }
       let totales = [];
       for (let i = startRow + 1; i < data.length; i++) {
@@ -88,13 +97,4 @@
       totales.sort((a,b) => a[1] - b[1]);
       let html = '';
       totales.forEach((r, i) => {
-        const [prioText, prioClase] = getPriority(r[1]);
-        html += `<div class="ranking-item ${prioClase}"><div class="rank-number">${i+1}</div><div class="ranking-info"><div class="ranking-name">${r[0]}</div><div class="ranking-days">${r[1]} día${r[1]==1?'':'s'} trabajados esta semana</div></div><div class="ranking-priority">${prioText}</div></div>`;
-      });
-      document.getElementById('rankingContainer').innerHTML = html;
-    }
-    getCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vS5vmKQNZSM06OL_-rrNCq9mqx-z1cAL7fjlCsYw-iOtgmEMNGevSI6bwpy1Q0NH47dj5LNnRsqQ6QE/pub?gid=143658271&single=true&output=csv")
-      .then(data => showRanking(data));
-  </script>
-</body>
-</html>
+        const [prioText, prioClase] = getPriority
