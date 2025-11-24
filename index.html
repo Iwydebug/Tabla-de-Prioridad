@@ -59,89 +59,6 @@
             line-height: 1.6;
         }
 
-        .legend {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-        }
-
-        .legend-circle {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        .legend-circle.verde {
-            background: #27ae60;
-        }
-
-        .legend-circle.amarillo {
-            background: #f39c12;
-        }
-
-        .legend-circle.rojo {
-            background: #e74c3c;
-        }
-
-        .input-section {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 6px;
-            margin-bottom: 30px;
-            border: 1px solid #ddd;
-        }
-
-        .input-section h3 {
-            margin-bottom: 15px;
-            color: #333;
-            font-size: 16px;
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input-group label {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #555;
-        }
-
-        .input-group input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: #27ae60;
-            box-shadow: 0 0 5px rgba(39, 174, 96, 0.2);
-        }
-
         .ranking-container {
             display: flex;
             flex-direction: column;
@@ -185,21 +102,11 @@
             flex-shrink: 0;
         }
 
-        .ranking-item.maxima .rank-number {
-            background: #27ae60;
-        }
+        .ranking-item.maxima .rank-number { background: #27ae60; }
+        .ranking-item.media .rank-number { background: #f39c12; }
+        .ranking-item.baja .rank-number { background: #e74c3c; }
 
-        .ranking-item.media .rank-number {
-            background: #f39c12;
-        }
-
-        .ranking-item.baja .rank-number {
-            background: #e74c3c;
-        }
-
-        .ranking-info {
-            flex: 1;
-        }
+        .ranking-info { flex: 1; }
 
         .ranking-name {
             font-weight: 600;
@@ -221,63 +128,9 @@
             font-weight: 600;
         }
 
-        .ranking-item.maxima .ranking-priority {
-            background: #c8e6c9;
-            color: #1b5e20;
-        }
-
-        .ranking-item.media .ranking-priority {
-            background: #ffe0b2;
-            color: #e65100;
-        }
-
-        .ranking-item.baja .ranking-priority {
-            background: #ffcccc;
-            color: #b71c1c;
-        }
-
-        .button-group {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-update {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-update:hover {
-            background: #229954;
-        }
-
-        .btn-reset {
-            background: #bdc3c7;
-            color: white;
-        }
-
-        .btn-reset:hover {
-            background: #95a5a6;
-        }
-
-        .btn-download {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-download:hover {
-            background: #2980b9;
-        }
+        .ranking-item.maxima .ranking-priority { background: #c8e6c9; color: #1b5e20; }
+        .ranking-item.media .ranking-priority { background: #ffe0b2; color: #e65100; }
+        .ranking-item.baja .ranking-priority { background: #ffcccc; color: #b71c1c; }
     </style>
 </head>
 <body>
@@ -299,11 +152,7 @@ function getCSV(url) {
     .then(r => r.text())
     .then(t => t.split('\n').map(row => row.split(',')));
 }
-function getPriority(dias) {
-  if (dias <= 2) return ['MÁXIMA PRIORIDAD', 'maxima'];
-  if (dias <= 4) return ['PRIORIDAD MEDIA', 'media'];
-  return ['BAJA PRIORIDAD', 'baja'];
-}
+
 function showRanking(data) {
   // Busca la fila donde empiezan nombre y días
   let startRow = data.findIndex(row => row[0] && row[1] && row[0].toLowerCase().includes('nombre') && row[1].toLowerCase().includes('total'));
@@ -339,22 +188,9 @@ function showRanking(data) {
   document.getElementById('rankingContainer').innerHTML = html;
 }
 
-  if (!totales.length) {
-    document.getElementById('rankingContainer').innerHTML = 'No se encontraron datos en TOTAL GENERAL.';
-    return;
-  }
-  totales.sort((a,b)=>a[1]-b[1]);
-  let html = '';
-  totales.forEach((r, i) => {
-    const [prioText, prioClase] = getPriority(r[1]);
-    html += `<div class="ranking-item ${prioClase}"><div class="rank-number">${i+1}</div><div class="ranking-info"><div class="ranking-name">${r[0]}</div><div class="ranking-days">${r[1]} día${r[1]==1?'':'s'} trabajados esta semana</div></div><div class="ranking-priority">${prioText}</div></div>`;
-  });
-  document.getElementById('rankingContainer').innerHTML = html;
-}
 getCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vS5vmKQNZSM06OL_-rrNCq9mqx-z1cAL7fjlCsYw-iOtgmEMNGevSI6bwpy1Q0NH47dj5LNnRsqQ6QE/pub?gid=143658271&single=true&output=csv")
   .then(data => showRanking(data));
 </script>
-
 
 </body>
 </html>
