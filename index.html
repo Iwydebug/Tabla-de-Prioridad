@@ -69,16 +69,34 @@
       if (dias <= 4) return ['PRIORIDAD MEDIA', 'media'];
       return ['BAJA PRIORIDAD', 'baja'];
     }
-    function showRanking(data) {
-      // Busca la fila donde empieza la tabla TOTAL GENERAL
-      let startRow = data.findIndex(row => row[0].trim() === 'Nombre' && row[1].trim().toLowerCase().includes('total'));
-      if (startRow < 0) { document.getElementById('rankingContainer').innerHTML = 'No se encontró la tabla de totales.'; return; }
-      let totales = [];
-      for (let i = startRow + 1; i < data.length; i++) {
-        let fila = data[i];
-        if (!fila[0] || isNaN(fila[1])) break;
-        totales.push([fila[0], Number(fila[1]||0)]);
-      }
+   function showRanking(data) {
+  // Busca la fila donde empiece "TOTAL GENERAL"
+  let totalRow = data.findIndex(row => row[0].trim().toUpperCase() === 'TOTAL GENERAL');
+  // Busca la base de datos justo debajo, columna Nombre y TOTAL DIAS
+  let startRow = (totalRow >= 0) ? totalRow + 1 : data.findIndex(row => row[0].trim() === 'Nombre' && row[1].trim().toLowerCase().includes('total'));
+  if (startRow < 0) { document.getElementById('rankingContainer').innerHTML = 'No se encontró la tabla de totales.'; return; }
+  let totales = [];
+  for (let i = startRow + 1; i < data.length; i++) {
+    let fila = data[i];
+    // Detener si la fila está vacía o no tiene nombre/día
+    if (!fila[0] || isNaN(fila[1])) break;
+    totales.push([fila[0], Number(fila[1]||0)]);
+  }
+  // Si no encontró nada, muestra mensaje
+  if (!totales.length) {
+    document.getElementById('rankingContainer').innerHTML = 'No se encontraron datos en TOTAL GENERAL.';
+    return;
+  }
+  // Ordena por días
+  totales.sort((a,b) => a[1] - b[1]);
+  let html = '';
+  totales.forEach((r, i) => {
+    const [prioText, prioClase] = getPriority(r[1]);
+    html += `<div class="ranking-item ${prioClase}"><div class="rank-number">${i+1}</div><div class="ranking-info"><div class="ranking-name">${r[0]}</div><div class="ranking-days">${r[1]} día${r[1]==1?'':'s'} trabajados esta semana</div></div><div class="ranking-priority">${prioText}</div></div>`;
+  });
+  document.getElementById('rankingContainer').innerHTML = html;
+}
+
       totales.sort((a,b) => a[1] - b[1]);
       let html = '';
       totales.forEach((r, i) => {
