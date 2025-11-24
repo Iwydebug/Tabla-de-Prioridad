@@ -426,6 +426,42 @@
 
         // Iniciar cuando carga la página
         window.addEventListener('load', inicializar);
-    </script>
+    </script> <script>
+  function getCSV(url) {
+    return fetch(url)
+      .then(r => r.text())
+      .then(t => t.split('\n').map(row => row.split(',')));
+  }
+  function getPriority(dias) {
+    if (dias <= 2) return ['MÁXIMA PRIORIDAD', 'maxima'];
+    if (dias <= 4) return ['PRIORIDAD MEDIA', 'media'];
+    return ['BAJA PRIORIDAD', 'baja'];
+  }
+  function showRanking(data) {
+    // Busca la fila donde empiezan nombre y días
+    let startRow = data.findIndex(row => row[0] && row[1] && row[0].toLowerCase().includes('nombre') && row[1].toLowerCase().includes('total'));
+    if (startRow < 0) { document.getElementById('rankingContainer').innerHTML = 'No se encontró la tabla de totales.'; return; }
+    let totales = [];
+    for (let i = startRow + 1; i < data.length; i++) {
+      let fila = data[i];
+      if (!fila[0] || isNaN(fila[1])) break;
+      totales.push([fila[0], Number(fila[1]||0)]);
+    }
+    if (!totales.length) {
+      document.getElementById('rankingContainer').innerHTML = 'No se encontraron datos en TOTAL GENERAL.';
+      return;
+    }
+    totales.sort((a,b)=>a[1]-b[1]);
+    let html = '';
+    totales.forEach((r, i) => {
+      const [prioText, prioClase] = getPriority(r[1]);
+      html += `<div class="ranking-item ${prioClase}"><div class="rank-number">${i+1}</div><div class="ranking-info"><div class="ranking-name">${r[0]}</div><div class="ranking-days">${r[1]} día${r[1]==1?'':'s'} trabajados esta semana</div></div><div class="ranking-priority">${prioText}</div></div>`;
+    });
+    document.getElementById('rankingContainer').innerHTML = html;
+  }
+  getCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vS5vmKQNZSM06OL_-rrNCq9mqx-z1cAL7fjlCsYw-iOtgmEMNGevSI6bwpy1Q0NH47dj5LNnRsqQ6QE/pub?gid=143658271&single=true&output=csv")
+    .then(data => showRanking(data));
+</script>
+
 </body>
 </html>
